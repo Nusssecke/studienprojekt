@@ -3,9 +3,9 @@
 
 (* This file aims to calculate the frequencies with minimal interaction *)
 
-wp = 25;(*Working precision.*)
-ag = 20;(*Accuracy goal.*)
-pg = 20;(*Precision goal*)
+wp = 8;(*Working precision.*)
+ag = 5;(*Accuracy goal.*)
+pg = 5;(*Precision goal*)
 
 (* Constrain black brane charge: *)
 $Assumptions = {qt < Sqrt[2], qt > 0};
@@ -145,7 +145,7 @@ ListPlot[listOfQNMk, Frame->True, FrameLabel->{"kTemp", "Im \[Omega]/(\[Pi]T)"},
 
 (* Set closer to critical temp, if desired *)
 (*SetPrecision[Solve[39/40 qPureExtremal\[Equal]qPure[qt,1], qt][[1,1,2]],wp];*)
-(* qtTemp=1/10;
+qtTemp=1/10;
 
 (* Calculate values for the initial guess *)
 qnmRoutine[2,-2, 0, qtTemp];
@@ -156,26 +156,27 @@ calc[kTemp_, qtt_] := (
 	(*Print["kTemp: ", kTemp];*)
 	qnmRoutine[qnmVBC[[1,2]], qnmVBC[[2,2]], kTemp, qtt];
 	(*Print[" Scaled: ", {kTemp, qnmVBC[[2,2]]/Sqrt[uHt[qtt,1]]}];*)
-	Return[{kTemp, qnmVBC[[2,2]]}];
+	Return[{qnmVBC[[1,2]], qnmVBC[[2,2]]}];
 )
-For[i=8, i < 10, i++,
+For[i=1, i < 10, i++,
 	Print["i=", i];
-	qttt = SetPrecision[Solve[(90+i)/100 qPureExtremal==qPure[qt,1], qt][[1,1,2]],wp];
+	(*qttt = SetPrecision[Solve[10i/100 qPureExtremal==qPure[qt,1], qt][[1,1,2]],wp];*)
+	qttt = i/10 * Sqrt[2]
 	Print["qttt=", qttt];
 	(* Reset initial guess *)
 	qnmRoutine[2,-2, 0, qttt];
 	
-	listOfQNMk = Table[calc[i, qttt], {i, 0, 20, 2}];
+	listOfQNMk = Table[calc[i, qttt], {i, 0, 20, 1}];
 	Print[listOfQNMk];
-	Print[ListPlot[listOfQNMk, Frame->True, FrameLabel->{"kTemp", "Im \[Omega]/(\[Pi]T)"}, PlotLabel->qttt]]
-] *)
+	Print[ListPlot[listOfQNMk, Frame->True, FrameLabel->{"Re^", "Im \[Omega]/(\[Pi]T)"}, PlotLabel->qttt]]
+]
 
 
 (* Critical scaling for (w~q)^(exp.) *)
 (* For this we calculate 
 	w(k=0, q=Subscript[q, ex]+\[Epsilon])
 	for this \[Epsilon] is in range -1% of Subscript[q, ex] to 0*)
-listOfQNM = {};
+(*listOfQNM = {};
 Clear[calc];
 calc[kTemp_, qtt_] := (
 	(*Print["kTemp: ", kTemp];*)
@@ -193,19 +194,8 @@ For[i=1, i < 10, i++,
 	qnmRoutine[3,-3, 0, qttt];
 	listOfQNM=Append[listOfQNM, {qttt, qnmVBC[[2,2]]}];
 ]
-ListPlot[listOfQNM, Frame->True, FrameLabel->{"q", "Im \[Omega]/(\[Pi]T)"}, PlotLabel->"Scaling?"]
+ListPlot[listOfQNM, Frame->True, FrameLabel->{"q", "Im \[Omega]/(\[Pi]T)"}, PlotLabel->"Scaling?"]*)
 
 
 Print[listOfQNM];
 ListPlot[listOfQNM]
-
-
-qttt = 99/100 * Sqrt[2];
-Print["qttt=", N[qttt]];
-(* Reset initial guess *)
-qnmRoutine[1,-1, 0, qttt];
-qnmRoutine[2,-2, 0, qttt];
-qnmRoutine[3,-3, 0, qttt];
-
-
-

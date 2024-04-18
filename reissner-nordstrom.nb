@@ -1,0 +1,56 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 13.0' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       158,          7]
+NotebookDataLength[      1348,         46]
+NotebookOptionsPosition[       916,         31]
+NotebookOutlinePosition[      1308,         47]
+CellTagsIndexPosition[      1265,         44]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+Cell["Reissner-Nordstr\[ODoubleDot]m metric", "Text",
+ CellChangeTimes->{{3.922419584681538*^9, 
+  3.922419595408922*^9}},ExpressionUUID->"a18e0a19-cf22-4d0e-a76b-\
+e69fba3d1546"],
+
+Cell[BoxData[
+ RowBox[{"<<", "ERG"}]], "Input",
+ CellChangeTimes->{{3.922419598820305*^9, 
+  3.92241960070498*^9}},ExpressionUUID->"e3f49d13-4cbf-48e3-b399-\
+7afafc0bc06d"]
+},
+WindowSize->{1440, 762},
+WindowMargins->{{0, Automatic}, {0, Automatic}},
+FrontEndVersion->"13.0 for Linux x86 (64-bit) (December 2, 2021)",
+StyleDefinitions->"Default.nb",
+ExpressionUUID->"7ea828f6-8c4b-450d-a7a6-0338b40d008a"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[558, 20, 179, 3, 35, "Text",ExpressionUUID->"a18e0a19-cf22-4d0e-a76b-e69fba3d1546"],
+Cell[740, 25, 172, 4, 29, "Input",ExpressionUUID->"e3f49d13-4cbf-48e3-b399-7afafc0bc06d"]
+}
+]
+*)
+
+(* End of internal cache information *)
+
