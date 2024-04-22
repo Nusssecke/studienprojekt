@@ -15,7 +15,7 @@ myPhiEq:=-(((f[u]-u (f')[u]) (phi')[u])/(u f[u]))+(phi[u] (\[Omega]^2-k^2 f[u]))
 
 f[u_]:= 1 - (1+qt^2) u^2+qt^2 u^3
 myphiEqRS = Collect[FullSimplify[myPhiEq /. {\[Omega]->rH w,k->rH kk}],{phi''[u],phi'[u],phi[u]}];
-
+Print[myphiEqRS/.{u->t,w->omega}]
 (* Define horizon expansion*)
 order=14;
 phiH[u_]:=(1-u)^((I w)/(2 (-2+qt^2))) Sum[cphiH[nn] (1-u)^nn,{nn,0,order}] /. {\[Alpha]->(I w)/(2 (-2+qt^2))}
@@ -24,8 +24,12 @@ SetDirectory["/home/finn/Documents/studienprojekt/notebooks/"]; (*/home/finn/Do[
 ruleH=Get["ruleHk14"];
 phiHExpansion[u_,c0_]:=SetPrecision[phiH[u]/.ruleH/.{cphiH[0]->c0,cphiH[order]->0}, 25] /. {q->qt}
 
-phiHExpansion[1/2,1]/.{qt->1/10,w->1/10,kk->0}
 
+(*phiH[u]/.ruleH/.{cphiH[0]->c0,cphiH[order]->0}/.{q->qt}
+D[phiH[u]/.ruleH/.{cphiH[0]->c0,cphiH[order]->0}/.{q->qt},u]*)
+
+phiHExpansion[1/2,1]/.{qt->1/10,w->1/10,kk->0}
+SetPrecision[D[phiH[u]/.ruleH/.{cphiH[0]->c0,cphiH[order]->0}/.{q->qt},u], 25]/.{u->1/2,c0->1,qt->1/10,w->1/10,kk->0}
 Precision[phiHExpansion[1/2,1]/.{qt->1/10,w->1/10,kk->0}]
 
 
@@ -54,12 +58,14 @@ Block[
 ]
 (* Usage: phiSol(w, k) *)
 phiSol[w_?NumericQ, kk_]:=Quiet[SetPrecision[solphi[w,kk,1][[1,1,2]],wp]]
-
+(*[[1,1,2]]*)
 (* Test *)
-Block[
-	{qt = 0},
-	phiSol[1, 1] // Print
-]
+Block[{qt = 0},
+	sol = phiSol[1/2, 1/2];
+	sol // Print;
+	sol /. u->(uBnum) // Print;
+	sol /. u->(1/2) // Print;
+	ReImPlot[phi[u] /.{phi[u] -> sol}, {u, uBnum, uHnum}]]
 
 
 
@@ -69,12 +75,19 @@ qnmRoutine[initWR_,initWI_,kay_,kuh_]:=Block[
 	{iWR=initWR,iWI=initWI,kk=kay,qt=kuh},
 	
 	eqQNMVBC[wR_?NumericQ,wI_?NumericQ]:=SetPrecision[Block[{w=wR+I wI},phiSol[w,kk]/.u->uBnum],wp];
-	findQNMVBC[reWi_?NumericQ,imWi_?NumericQ]:=FindRoot[{Re[eqQNMVBC[wr,wi]]==0,Im[eqQNMVBC[wr,wi]]==0},{wr,reWi},{wi,imWi},WorkingPrecision->wp,
+	findQNMVBC[reWi_?NumericQ,imWi_?NumericQ]:=
+		FindRoot[
+			{Re[eqQNMVBC[wr,wi]]==0, Im[eqQNMVBC[wr,wi]]==0},
+			{wr,reWi},
+			{wi,imWi},
+			WorkingPrecision->wp,
 		AccuracyGoal->ag,
 		PrecisionGoal->pg];
 	qnmVBC=SetPrecision[findQNMVBC[iWR,iWI], wp];
 	Print[{qnmVBC[[1,2]],qnmVBC[[2,2]]}]
 ]
+
+qnmRoutine[1,1,1,0]
 
 
 (* Thermodynamics *)
