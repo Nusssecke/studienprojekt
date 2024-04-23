@@ -17,7 +17,7 @@ f[u_]:= 1 - (1+qt^2) u^2+qt^2 u^3
 myphiEqRS = Collect[FullSimplify[myPhiEq /. {\[Omega]->rH w,k->rH kk}],{phi''[u],phi'[u],phi[u]}];
 Print[myphiEqRS/.{u->t,w->omega}]
 (* Define horizon expansion*)
-order=14;
+order=2;
 phiH[u_]:=(1-u)^((I w)/(2 (-2+qt^2))) Sum[cphiH[nn] (1-u)^nn,{nn,0,order}] /. {\[Alpha]->(I w)/(2 (-2+qt^2))}
 (* !!! Change !!!*)
 SetDirectory["/home/finn/Documents/studienprojekt/notebooks/"]; (*/home/finn/Do[k,c]ument[e,s]/studienprojekt/notebooks/;/*)
@@ -25,8 +25,8 @@ ruleH=Get["ruleHk14"];
 phiHExpansion[u_,c0_]:=SetPrecision[phiH[u]/.ruleH/.{cphiH[0]->c0,cphiH[order]->0}, 25] /. {q->qt}
 
 
-(*phiH[u]/.ruleH/.{cphiH[0]->c0,cphiH[order]->0}/.{q->qt}
-D[phiH[u]/.ruleH/.{cphiH[0]->c0,cphiH[order]->0}/.{q->qt},u]*)
+phiH[u]/.ruleH/.{cphiH[0]->c0,cphiH[order]->0}/.{q->qt}
+(*D[phiH[u]/.ruleH/.{cphiH[0]->c0,cphiH[order]->0}/.{q->qt},u]*)
 
 phiHExpansion[1/2,1]/.{qt->1/10,w->1/10,kk->0}
 SetPrecision[D[phiH[u]/.ruleH/.{cphiH[0]->c0,cphiH[order]->0}/.{q->qt},u], 25]/.{u->1/2,c0->1,qt->1/10,w->1/10,kk->0}
@@ -87,7 +87,7 @@ qnmRoutine[initWR_,initWI_,kay_,kuh_]:=Block[
 	Print[{qnmVBC[[1,2]],qnmVBC[[2,2]]}]
 ]
 
-qnmRoutine[1,1,1,0]
+qnmRoutine[1/100,-1/100, 1, Sqrt[2] - 1/100]
 
 
 (* Thermodynamics *)
