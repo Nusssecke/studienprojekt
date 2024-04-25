@@ -1,10 +1,12 @@
-using DifferentialEquations
+module QNM
+
+using OrdinaryDiffEq # for the ODE solver required by shooting method
+using BoundaryValueDiffEq # for the boundary value problem
+using Plots # for plotting
 using BenchmarkTools
-using BoundaryValueDiffEq
 using Plots
 using NLsolve
-
-include("horizon_expansion.jl")
+using horizonExpansion
 
 f(u, qt) = 1 - (1+qt^2) * u^2 + qt^2 * u^3 # blackening_factor
 df(u, qt) = -2 * (1+qt^2) * u + 3 * qt^2 * u^2 # derivative of blackening_factor
@@ -41,9 +43,9 @@ uBoundaryNumerical = epsilon
 uHorizonNumerical = big(1.0)-big(1.0)/big(10.0)
 
 function shear_mode(qt, omega, kk, c0=1)
-    # println("Starting calculation of phiSol with qt = ", qt, ", omega = ", omega, ", kk = ", kk)
+    println("Starting calculation of phiSol with qt = ", qt, ", omega = ", omega, ", kk = ", kk)
 
-    u0 = [1, 0, 1, 0]; # initial conditions    
+    u0 = [0, 0, 0, 0]; # initial conditions    
     tspan = (uBoundaryNumerical, uHorizonNumerical) # Possible values for u
     parameters = [c0, qt, omega, kk]
 
@@ -52,16 +54,20 @@ function shear_mode(qt, omega, kk, c0=1)
     solution = solve(boundary_value_problem, MIRK2(), dt= 0.05)
 
     # Plot the first to variables of the solution atop one another
-    display(plot(solution))
-    # println("Finished calculation of phiSol with qt = ", qt, ", omega = ", omega, ", kk = ", kk)
-
+    # display(plot(solution))
+    println("Finished calculation of phiSol with qt = ", qt, ", omega = ", omega, ", kk = ", kk)
+    # return solution
     return u -> [solution(u, idxs = 1), solution(u, idxs = 2)]
 end
 
-# sol = phiSol(0, 1/2, 1/2)
+# sol = shear_mode(0, 1/2, 1/2)
 # println(sol(uBoundaryNumerical))
 # println(sol(1/2))
 sol = shear_mode(sqrt(2) - 1/100, 0.0 + im * -0.003, 1)
+println(sol(uBoundaryNumerical))
+# println(sol.t[1])
+# println(sol.u[1])
+# println(sol.retcode)
 
 function solve_quasinormal_mode(omega)
     println("Omega = ", omega)
@@ -90,4 +96,23 @@ for i in 1:10
 end
 
 print(values)
+=#
+
+# Bisection method for imaginary part of the qnm frequency
+# Plot the imaginary values for qnmRoutine for different omega
+#=
+values = zeros(Complex{Float64}, 100)
+for i in 1:100
+    println("Omega = ", i/1000, "im")
+    value = (shear_mode(sqrt(2) - 1/100 , i/1000 * im, 1))(uBoundaryNumerical)
+    println("Value = ", value[1], " + im * ", value[2])
+    values[i] = value[1] + im * value[2]
+end
+
+print(values)
+values_cumulative = []
+for value in values
+    push!(values_cumulative, (real(value)- imag(value)))
+end
+plot(values_cumulative)
 =#

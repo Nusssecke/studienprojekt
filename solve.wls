@@ -3,9 +3,9 @@
 
 (* This file aims to calculate the frequencies with minimal interaction *)
 
-wp = 8;(*Working precision.*)
-ag = 5;(*Accuracy goal.*)
-pg = 5;(*Precision goal*)
+wp = 25;(*Working precision.*)
+ag = 20;(*Accuracy goal.*)
+pg = 20;(*Precision goal*)
 
 (* Constrain black brane charge: *)
 $Assumptions = {qt < Sqrt[2], qt > 0};
@@ -25,8 +25,8 @@ ruleH=Get["ruleHk14"];
 phiHExpansion[u_,c0_]:=SetPrecision[phiH[u]/.ruleH/.{cphiH[0]->c0,cphiH[order]->0}, 25] /. {q->qt}
 
 
-phiH[u]/.ruleH/.{cphiH[0]->c0,cphiH[order]->0}/.{q->qt}
-(*D[phiH[u]/.ruleH/.{cphiH[0]->c0,cphiH[order]->0}/.{q->qt},u]*)
+(* hiH[u]/.ruleH/.{cphiH[0]->c0,cphiH[order]->0}/.{q->qt} *)
+(* D[phiH[u]/.ruleH/.{cphiH[0]->c0,cphiH[order]->0}/.{q->qt},u] *)
 
 phiHExpansion[1/2,1]/.{qt->1/10,w->1/10,kk->0}
 SetPrecision[D[phiH[u]/.ruleH/.{cphiH[0]->c0,cphiH[order]->0}/.{q->qt},u], 25]/.{u->1/2,c0->1,qt->1/10,w->1/10,kk->0}
@@ -77,17 +77,51 @@ qnmRoutine[initWR_,initWI_,kay_,kuh_]:=Block[
 	eqQNMVBC[wR_?NumericQ,wI_?NumericQ]:=SetPrecision[Block[{w=wR+I wI},phiSol[w,kk]/.u->uBnum],wp];
 	findQNMVBC[reWi_?NumericQ,imWi_?NumericQ]:=
 		FindRoot[
-			{Re[eqQNMVBC[wr,wi]]==0, Im[eqQNMVBC[wr,wi]]==0},
-			{wr,reWi},
+			{Im[eqQNMVBC[0,wi]]==0},
 			{wi,imWi},
 			WorkingPrecision->wp,
 		AccuracyGoal->ag,
 		PrecisionGoal->pg];
 	qnmVBC=SetPrecision[findQNMVBC[iWR,iWI], wp];
-	Print[{qnmVBC[[1,2]],qnmVBC[[2,2]]}]
+	Print[{qnmVBC[[1,2]]}]
 ]
 
-qnmRoutine[1/100,-1/100, 1, Sqrt[2] - 1/100]
+(*qnmRoutine[0, -4/10000, 0, Sqrt[2] - 1/100]*)
+(*qnmRoutine[0, -1.7, 1, Sqrt[2] - 1/100]*)
+
+
+(* Plot the sum for different freuqencies for one k *)
+qt = Sqrt[2] - 1/1000;
+kk = 0;
+valuesCumulative = {};
+For[i=0, i<=100, i++,
+	value = phiSol[-I * i/10000 , kk] /. u->(uBnum);
+	Print[i, " ", Abs[Re[value]] + Abs[Im[value]]];
+	valuesCumulative = Append[valuesCumulative, Abs[Re[value]] + Abs[Im[value]]];
+];
+ListPlot[valuesCumulative]
+
+
+(* Calculate frequencies for purely imaginary QNM *)
+(* Make plot for k = 0 to k = 10 *)
+qnmRoutine[0, -3/1000, 1, Sqrt[2] - 1/1000]
+(*
+qnmFrequencies = {};
+For[i=0, i<=10, i++,
+	Print["k=", i];
+	imaginaryGuess = -3/1000;
+	While[True,
+		Print["Imaginary guess = ", imaginaryGuess];
+		qnmRoutine[0, -3/1000, i, Sqrt[2] - 1/100];	
+		If[qnmVBC[[2,2]] < 0,
+			Break[];
+		];
+		imaginaryGuess = imaginaryGuess - 1/10;
+	];
+	qnmFrequencies=Append[qnmFrequencies, {i, qnmVBC[[2,2]]}];
+];
+ListPlot[qnmFrequencies]
+*)
 
 
 (* Thermodynamics *)

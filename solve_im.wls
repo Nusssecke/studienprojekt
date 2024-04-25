@@ -3,9 +3,9 @@
 
 (* This file aims to calculate the frequencies with minimal interaction *)
 
-wp = 15;(*Working precision.*)
-ag = 10;(*Accuracy goal.*)
-pg = 10;(*Precision goal*)
+wp = 25;(*Working precision.*)
+ag = 20;(*Accuracy goal.*)
+pg = 20;(*Precision goal*)
 
 (* Constrain black brane charge: *)
 $Assumptions = {qt < Sqrt[2], qt > 0};
@@ -24,9 +24,8 @@ SetDirectory["/home/finn/Documents/studienprojekt/notebooks/"]; (*/home/finn/Do[
 ruleH=Get["ruleHk14"];
 phiHExpansion[u_,c0_]:=SetPrecision[phiH[u]/.ruleH/.{cphiH[0]->c0,cphiH[order]->0}, 25] /. {q->qt}
 
-phiHExpansion[1/2,1]/.{qt->1/10,w->1/10,kk->0}
-
-Precision[phiHExpansion[1/2,1]/.{qt->1/10,w->1/10,kk->0}]
+(*phiHExpansion[1/2,1]/.{qt->1/10,w->1/10,kk->0}
+Precision[phiHExpansion[1/2,1]/.{qt->1/10,w->1/10,kk->0}]*)
 
 
 (* Solve differential equations*)
@@ -60,7 +59,6 @@ Block[
 	{qt = 0},
 	phiSol[1, 1] // Print
 ]
-
 
 
 (* Get the quasinormal modes*)
@@ -97,26 +95,26 @@ Print[SetPrecision[Solve[qPureExtremal==qPure[qt,1], qt][[1,1,2]],wp]];
 
 (* Calculate imaginary modes *)
 
-listOfQNM = {};
+frequencies = {};
 (*qtTemp=SetPrecision[Solve[99/100 qPureExtremal==qPure[qt,1], qt][[1,1,2]],wp];*)
 
 (* Calculate values for the initial guess *)
-(* One purely imaginary mode*)
-qnmRoutine[0,-306/100,0,7/10]
+(* Only purely imaginary mode*)
+qnmRoutine[0,-306/100, 0, 7/10]
 
-For[step=0, step<80, step++,
-	qtTemp=7/10 + step/100;
-	Print["step: ", step];
-	(*Print[qtTemp];
-	Print["Tt: ", Tt[qtTemp,1]];
-	Print["\[Mu]t: ", \[Mu]t[qtTemp,1]];
-	Print["uHT: ", uHt[qtTemp,1]];*)
-	qnmRoutine[qnmVBC[[1,2]],qnmVBC[[2,2]], 0, qtTemp];
-	listOfQNM=Append[listOfQNM, {step, -qnmVBC[[2,2]]}];
-	(*Print["Scaled=",{qnmVBC[[1,2]],qnmVBC[[2,2]]}*2/(2-qtTemp^2)];*)
+(* Replicate plot go from 0.7 to 1.0 *)
+For[step=0, step<=30, step++,
+	q = 7/10 + step/10;
+	Print["q: ", q];
+	
+	qnmRoutine[qnmVBC[[1,2]],qnmVBC[[2,2]], 0, q];
+	frequencies = Append[frequencies, {q, -qnmVBC[[2,2]]}];
 ]
 
-ListPlot[listOfQNM,Frame->True,FrameLabel->{"k","Im \[Omega]/(\[Pi]T)"},PlotLabel->"k=0"]
+ListPlot[frequencies]
+
+
+
 
 
 
