@@ -1,4 +1,5 @@
-include("horizon_expansion.jl")
+using QNM
+using NOMAD
 
 print("Test Case 1\n")
 u = 1/2
@@ -13,8 +14,8 @@ print("Test Case 2\n")
 println(dphiHorizonExpansion(u, c0, qt, omega, kk))
 # Expected Output: 0.00123882900990351218987474 + 0.0344982622722421530720753 I
 
-using NOMAD
 
+# Possible root finding using nomad
 function eval_fct(omegas)
     println("eval_fct with omegas = ", omegas[1], " ", omegas[2], "im")
     omega = omegas[1] + im * omegas[2]

@@ -3,9 +3,9 @@
 
 (* This file aims to calculate the frequencies with minimal interaction *)
 
-wp = 25;(*Working precision.*)
-ag = 20;(*Accuracy goal.*)
-pg = 20;(*Precision goal*)
+wp = 5;(*Working precision.*)
+ag = 4;(*Accuracy goal.*)
+pg = 4;(*Precision goal*)
 
 (* Constrain black brane charge: *)
 $Assumptions = {qt < Sqrt[2], qt > 0};

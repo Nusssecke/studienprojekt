@@ -1,5 +1,3 @@
-module horizonExpansion
-export phiHorizonExpansion, dphiHorizonExpansion, phiHorizonExpansion14, dphiHorizonExpansion14
 # This copied straight from the mathematica notebook.
 
 function phiHorizonExpansion(u, c0, qt, omega, kk)
