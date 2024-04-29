@@ -18,9 +18,9 @@ function shear_mode(qt, omega_real, omega_imag, kk, c0=1)
     # display(plot(solution))
     println("Finished calculation of phiSol with qt = ", qt, ", kk = ", kk)
     # return solution
-    print("omega: ", u[end][5] + im * u[end][6])
-    return u -> [solution(u, idxs = 1), solution(u, idxs = 2)]
+    return solution
 end
 
 sol = shear_mode(sqrt(2) - 1/100, 0.0, -0.003, 1)
-println(sol(uBoundaryNumerical))
+println(sol(uBoundaryNumerical, idxs=1), " ", sol(uBoundaryNumerical, idxs=2))
+println(sol(uBoundaryNumerical, idxs=5), " ", sol(uBoundaryNumerical, idxs=6))
