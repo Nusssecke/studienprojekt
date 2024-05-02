@@ -17,7 +17,7 @@ f[u_]:= 1 - (1+qt^2) u^2+qt^2 u^3
 myphiEqRS = Collect[FullSimplify[myPhiEq /. {\[Omega]->rH w,k->rH kk}],{phi''[u],phi'[u],phi[u]}];
 Print[myphiEqRS/.{u->t,w->omega}]
 (* Define horizon expansion*)
-order=2;
+order=14;
 phiH[u_]:=(1-u)^((I w)/(2 (-2+qt^2))) Sum[cphiH[nn] (1-u)^nn,{nn,0,order}] /. {\[Alpha]->(I w)/(2 (-2+qt^2))}
 (* !!! Change !!!*)
 SetDirectory["/home/finn/Documents/studienprojekt/notebooks/"]; (*/home/finn/Do[k,c]ument[e,s]/studienprojekt/notebooks/;/*)
@@ -77,17 +77,31 @@ qnmRoutine[initWR_,initWI_,kay_,kuh_]:=Block[
 	eqQNMVBC[wR_?NumericQ,wI_?NumericQ]:=SetPrecision[Block[{w=wR+I wI},phiSol[w,kk]/.u->uBnum],wp];
 	findQNMVBC[reWi_?NumericQ,imWi_?NumericQ]:=
 		FindRoot[
-			{Im[eqQNMVBC[0,wi]]==0},
+			{Re[eqQNMVBC[wr,wi]]==0, Im[eqQNMVBC[wr,wi]]==0},
+			{wr,reWi},
 			{wi,imWi},
 			WorkingPrecision->wp,
-		AccuracyGoal->ag,
-		PrecisionGoal->pg];
+			AccuracyGoal->ag,
+			PrecisionGoal->pg
+		];
 	qnmVBC=SetPrecision[findQNMVBC[iWR,iWI], wp];
-	Print[{qnmVBC[[1,2]]}]
+	Print[{qnmVBC[[1,2]],qnmVBC[[2,2]]}]
 ]
 
 (*qnmRoutine[0, -4/10000, 0, Sqrt[2] - 1/100]*)
 (*qnmRoutine[0, -1.7, 1, Sqrt[2] - 1/100]*)
+
+
+(* Replicate table II*)
+qnmRoutine[3, -2, 0, 0]; (* Initial guess *)
+kk = 0;
+valuesCumulative = {};
+For[i=0, i<10, i++,
+	Print[i/10];
+	qnmRoutine[qnmVBC[[1,2]], qnmVBC[[2,2]], 0, Sqrt[2](i/10)/(3)^(3/4)];
+	valuesCumulative = Append[valuesCumulative, {qnmVBC[[1,2]],qnmVBC[[2,2]]}];
+];
+ListPlot[valuesCumulative]
 
 
 (* Plot the sum for different freuqencies for one k *)
@@ -246,3 +260,6 @@ ListPlot[listOfQNM, Frame->True, FrameLabel->{"q", "Im \[Omega]/(\[Pi]T)"}, Plot
 
 Print[listOfQNM];
 ListPlot[listOfQNM]
+
+
+

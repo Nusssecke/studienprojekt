@@ -1,43 +1,15 @@
 module QNM
-export schroedinger!, bc!, xspan, uBoundaryNumerical, uHorizonNumerical, shear_mode_eq!, boundary_condition!, phiHorizonExpansion, dphiHorizonExpansion
-
-#---------------------------------------------------------#
-# Schrödinger equation #
-
-# Wood-Saxon Potential
-const V0 = 50 # MeV
-const A = 40 # Massenzahl von Calcium
-const R = 1.25 * A^(1 / 3) # fm
-const a = 0.5 # fm
-
-function V(x)
-	return -V0 / (1 + exp((abs(x) - R) / a))
-end
-
-const ħ = 197 # Planck constant in MeV fm/c
-const m = 939 # Nucleon mass in MeV/c^2
-const xspan = (-15, 15) # fm
-
-function schroedinger!(du, u, p, x)
-	ψ = u[1]
-	dψ = u[2]
-	E = u[3]
-	du[1] = dψ
-	du[2] = 2 * m / ħ^2 * (V(x) - E) * ψ
-	du[3] = 0
-end
-
-function bc!(residual, sol, p, x)
-	residual[1] = sol(xspan[1])[1] # ψ(x=-15) = 0
-	residual[2] = sol(xspan[end])[1] # ψ(x=15) = 0
-end
+export uBoundaryNumerical, uHorizonNumerical, shear_mode_eq!, boundary_condition!, phiHorizonExpansion14, dphiHorizonExpansion14
 
 #---------------------------------------------------------#
 # Quasinormal modes #
 # TODO test big numbers
-epsilon = big(1.0)/big(1000000000.0)
+# epsilon = big(1.0)/big(1000000000.0)
+# uBoundaryNumerical = epsilon
+# uHorizonNumerical = big(1.0)-big(1.0)/big(10.0)
+epsilon = 1.0/1000000000.0
 uBoundaryNumerical = epsilon
-uHorizonNumerical = big(1.0)-big(1.0)/big(10.0)
+uHorizonNumerical = 1.0-1.0/10.0
 
 f(u, qt) = 1 - (1+qt^2) * u^2 + qt^2 * u^3 # blackening_factor
 df(u, qt) = -2 * (1+qt^2) * u + 3 * qt^2 * u^2 # derivative of blackening_factor
@@ -106,11 +78,11 @@ function phiHorizonExpansion(u, c0, qt, omega, kk)
 				Sqrt(-(-2 + qt^2)^2)*w)))
   end
   
-  function dphiHorizonExpansion(u, c0, qt, omega, kk)
-	  Sqrt = x -> sqrt(complex(x))
-	  I = im
-	  w = omega
-	  return (1 - u)^((im*w)/(2*(-2 + qt^2)))*
+function dphiHorizonExpansion(u, c0, qt, omega, kk)
+	Sqrt = x -> sqrt(complex(x))
+	I = im
+	w = omega
+	return (1 - u)^((im*w)/(2*(-2 + qt^2)))*
 	  ((c0*(kk^2*(-2 + qt^2)^2 + 
 		  w*(2*Sqrt(-(-2 + qt^2)^2) - 4*w + 
 			 qt^2*(2*Sqrt(-(-2 + qt^2)^2) + 5*w))))/
@@ -5965,7 +5937,7 @@ function phiHorizonExpansion14(u, c0, qt, omega, kk)
 	   (-8 + 8*qt^2 - 2*qt^4 + Sqrt(-(-2 + qt^2)^2)*w)*(-4 + 4*qt^2 - qt^4 + Sqrt(-(-2 + qt^2)^2)*w)))
   end
   
-  function dphiHorizonExpansion14(u, c0, qt, omega, kk)
+function dphiHorizonExpansion14(u, c0, qt, omega, kk)
 	  Sqrt = x -> sqrt(complex(x))
 	  I = im
 	  w = omega
