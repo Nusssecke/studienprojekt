@@ -1,11 +1,12 @@
 using QNM
 
-println("Test Case 1")
 u = 1/2
 c0 = 1
 qt = 1/10
 omega = 1/10
 kk = 0
+
+println("Test Case 1")
 println(phiHorizonExpansion(u, c0, qt, omega, kk))
 # Expected Output: 0.998688687046780895747482 + 0.0246516649076105618329428 im
 

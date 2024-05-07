@@ -1,5 +1,5 @@
 module QNM
-export uBoundaryNumerical, uHorizonNumerical, shear_mode_eq!, boundary_condition!, phiHorizonExpansion14, dphiHorizonExpansion14
+export uBoundaryNumerical, uHorizonNumerical, shear_mode_eq!, boundary_condition!, phiHorizonExpansion14, dphiHorizonExpansion14, phiHorizonExpansion, dphiHorizonExpansion
 
 #---------------------------------------------------------#
 # Quasinormal modes #
