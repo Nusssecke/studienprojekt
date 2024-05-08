@@ -1,12 +1,14 @@
 module QNM
-export uBoundaryNumerical, uHorizonNumerical, shear_mode_eq!, boundary_condition!, phiHorizonExpansion14, dphiHorizonExpansion14, phiHorizonExpansion, dphiHorizonExpansion
+using OrdinaryDiffEq, BoundaryValueDiffEq, Plots, DifferentialEquations
+export uBoundaryNumerical, uHorizonNumerical, shear_mode_eq!, boundary_condition!, plotQNM, phiHorizonExpansion14, dphiHorizonExpansion14, phiHorizonExpansion, dphiHorizonExpansion
 
 #---------------------------------------------------------#
 # Quasinormal modes #
-# TODO test big numbers
+
 # epsilon = big(1.0)/big(1000000000.0)
 # uBoundaryNumerical = epsilon
 # uHorizonNumerical = big(1.0)-big(1.0)/big(10.0)
+
 epsilon = 1.0/1000000000.0
 uBoundaryNumerical = epsilon
 uHorizonNumerical = 1.0-1.0/10.0
@@ -46,6 +48,55 @@ function boundary_condition!(residual, u, p, t)
     residual[2] = imag(phiHorizonExpansion14(uHorizonNumerical, vars...)) - u[end][2] # solution at horizon should be the horizon expansion
     residual[3] = real(dphiHorizonExpansion14(uHorizonNumerical, vars...)) - u[end][3] # derivative at horizon should be the derivative of the horizon expansion
     residual[4] = imag(dphiHorizonExpansion14(uHorizonNumerical, vars...)) - u[end][4] # derivative at horizon should be the derivative of the horizon expansion
+end
+
+#---------------------------------------------------------#
+# Plot QNM #
+
+function simple_shear_mode_eq!(du, u, p, t)
+    # u is current state variable, du is the derivative of u at time t, t is current time
+    c0, qt, kk, omega = p # p is a vector of parameters
+    phiReal, phiImag, dphiReal, dphiImag = u
+
+    phi = phiReal + im * phiImag
+    dphi = dphiReal + im * dphiImag
+
+    du[1] = dphiReal
+    du[2] = dphiImag
+    eq = (
+            -((omega^2 - kk^2*(-1 + t)*(-1 + t*(-1 + qt^2*t)))* phi)/(4*(-1 + t)^2*t*(1 + t - qt^2*t^2)^2) 
+            -((-1 + t*(-1 + qt^2*t))*(-1 + t^2*(-1 + qt^2*(-1 + 2*t)))* dphi)/((-1 + t)*t*(1 + t - qt^2*t^2)^2)
+        ) * (1 + t - qt^2*t^2)^2/((-1 + t*(-1 + qt^2*t))^2)
+    du[3] = real(eq)
+    du[4] = imag(eq)
+end
+
+# boundary conditions
+# boundary conditions
+function simple_boundary_condition!(residual, u, parameters, t)
+    residual[1] = real(phiHorizonExpansion14(uHorizonNumerical, parameters...)) - u[end][1] # solution at horizon should be the horizon expansion
+    residual[2] = imag(phiHorizonExpansion14(uHorizonNumerical, parameters...)) - u[end][2] # solution at horizon should be the horizon expansion
+    residual[3] = real(dphiHorizonExpansion14(uHorizonNumerical, parameters...)) - u[end][3] # derivative at horizon should be the derivative of the horizon expansion
+    residual[4] = imag(dphiHorizonExpansion14(uHorizonNumerical, parameters...)) - u[end][4] # derivative at horizon should be the derivative of the horizon expansion
+end
+
+function plotQNM(omega_real, omega_imag, qt, kk, plot=false, solver=Rodas5P(), dtmax=0.01)
+    c0 = 1.0
+    parameters = [c0, qt, omega_real + im * omega_imag, kk] # Constants for the differential equation
+
+    # I am still not sure what the real boundary conditions are
+    # u0 = [0, 0, 0, 0, omega_real, omega_imag]; # initial conditions
+    u0 = [real(phiHorizonExpansion(uHorizonNumerical, parameters...)), imag(phiHorizonExpansion(uHorizonNumerical, parameters...)), real(dphiHorizonExpansion(uHorizonNumerical, parameters...)), imag(dphiHorizonExpansion(uHorizonNumerical, parameters...))]; # initial conditions
+	tspan = (uBoundaryNumerical, uHorizonNumerical) # Possible values for u
+    boundary_value_problem = BVProblem(simple_shear_mode_eq!, simple_boundary_condition!, u0, tspan, parameters)
+
+    solution = solve(boundary_value_problem, Shooting(solver), dt=dtmax/10, dtmax=dtmax)
+
+    if plot
+        plot(solution)
+    end
+
+    return solution.u[1][1], solution.u[1][2], solution.u[1][3], solution.u[1][4]
 end
 
 #---------------------------------------------------------#
