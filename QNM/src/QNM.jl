@@ -183,7 +183,7 @@ function dphiHorizonExpansion(u, c0, qt, omega, kk)
 			Sqrt(-(-2 + qt^2)^2)*w)*(8 - 8*qt^2 + 2*qt^4 - Sqrt(-(-2 + qt^2)^2)*w))))
   end
   
-  # Order 14
+# Order 14
 function phiHorizonExpansion14(u, c0, qt, omega, kk)
 	Sqrt = x -> sqrt(complex(x))
 	I = im
