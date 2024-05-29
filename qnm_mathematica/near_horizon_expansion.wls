@@ -8,12 +8,11 @@ $Assumptions={qt<Sqrt[2],qt>0}; (* Constrain black brane charge: *)
 myphiEqRS = ((-kk^2 (-1+u) (-1+u (-1+qt^2 u))+w^2) phi[u])/(4 (-1+u)^2 u (1+u-qt^2 u^2)^2)+((-1+u (-1+qt^2 u)) (-1+u^2 (-1+qt^2 (-1+2 u))) Derivative[1][phi][u])/((-1+u) u (1+u-qt^2 u^2)^2)+((-1+u (-1+qt^2 u))^2 (phi^\[Prime]\[Prime])[u])/(1+u-qt^2 u^2)^2;
 
 
-Quit;
 (* Find near horizon expansion for non-extremal charge *)
 phiIndH[u_]:=(1-u)^\[Alpha]
 indexRule={\[Alpha] -> I*w/(-4+2*qt^2)};
 
-order=3; (* Order of the series until which to expand *)
+order=2; (* Order of the series until which to expand *)
 phiH[u_]:=(1-u)^\[Alpha] Sum[cphiH[nn] (1-u)^nn, {nn, 0, order}]/.indexRule
 
 coeffphiH[nnn_] := 
@@ -41,10 +40,6 @@ Save["normalExpansionRule", ruleH];
 
 phiHExpansion[u_,c0_]:=SetPrecision[phiH[u]/.ruleH/.{cphiH[0]->c0,cphiH[order]->0},wp]/.{q->qt};
 phiHExpansion[1/2,1]/.{qt->1/10,w->1/10,kk->0}
-
-
-
-
 
 
 (* Find near horizon expansion for extremal charge *)
