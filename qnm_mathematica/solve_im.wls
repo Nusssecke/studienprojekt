@@ -3,9 +3,9 @@
 
 (* This file aims to calculate the frequencies with minimal interaction *)
 
-wp = 50;(*Working precision.*)
-ag = 25;(*Accuracy goal.*)
-pg = 25;(*Precision goal*)
+wp = 5;(*Working precision.*)
+ag = 4;(*Accuracy goal.*)
+pg = 4;(*Precision goal*)
 
 (* Constrain black brane charge: *)
 $Assumptions = {qt < Sqrt[2], qt > 0};
@@ -19,13 +19,13 @@ myphiEqRS = Collect[FullSimplify[myPhiEq /. {\[Omega]->rH w,k->rH kk}],{phi''[u]
 (* Define horizon expansion*)
 order=14;
 phiH[u_]:=(1-u)^((I w)/(2 (-2+qt^2))) Sum[cphiH[nn] (1-u)^nn,{nn,0,order}] /. {\[Alpha]->(I w)/(2 (-2+qt^2))}
-SetDirectory["/home/finn/Dokumente/studienprojekt/notebooks/"];
+(* !!! Change !!!*)
+SetDirectory["/home/finn/Documents/studienprojekt/notebooks/"]; (*/home/finn/Do[k,c]ument[e,s]/studienprojekt/notebooks/;/*)
 ruleH=Get["ruleHk14"];
 phiHExpansion[u_,c0_]:=SetPrecision[phiH[u]/.ruleH/.{cphiH[0]->c0,cphiH[order]->0}, 25] /. {q->qt}
 
-phiHExpansion[1/2,1]/.{qt->1/10,w->1/10,kk->0}
-
-Precision[phiHExpansion[1/2,1]/.{qt->1/10,w->1/10,kk->0}]
+(*phiHExpansion[1/2,1]/.{qt->1/10,w->1/10,kk->0}
+Precision[phiHExpansion[1/2,1]/.{qt->1/10,w->1/10,kk->0}]*)
 
 
 (* Solve differential equations*)
@@ -61,7 +61,6 @@ Block[
 ]
 
 
-
 (* Get the quasinormal modes*)
 (* Usage: qnmRoutine(guess_w_real, guess_w_imaginary, k, q) *)
 qnmRoutine[initWR_,initWI_,kay_,kuh_]:=Block[
@@ -88,57 +87,34 @@ qPureExtremal=Sqrt[2] (m/3)^(3/4)/.{m->1}//N
 qPureExtremal=Rationalize[qPureExtremal, 0]
 
 
-(* Replicate paper plot*)
-
-(* Calculate values for the initial guess :\ *)
-qnmRoutine[5,-5,0,0] 
-listOfQNM = {};
-
-For[ss=1,ss<39,ss++,
-	Print["ss: ", ss];
-	qtTemp=SetPrecision[Solve[ss/40 qPureExtremal==qPure[qt,1], qt][[1,1,2]],wp];
-	Print[qtTemp];
-	Print["Tt: ", Tt[qtTemp,1]];
-	Print["\[Mu]t: ", \[Mu]t[qtTemp,1]];
-	Print["uHT: ", uHt[qtTemp,1]];
-
-	qnmRoutine[qnmVBC[[1,2]], qnmVBC[[2,2]], 0, qtTemp];
-	Print[" wr=", qnmVBC[[1,2]], " wi=", qnmVBC[[2,2]], ", qnmVBC", qnmVBC];
-	listOfQNM=Append[listOfQNM,{qnmVBC[[1,2]],qnmVBC[[2,2]]}/Sqrt[uHt[qtTemp,1]]];
-]
-
-ListPlot[listOfQNM,Frame->True,FrameLabel->{"Re \[Omega]/(\[Pi]T)","Im \[Omega]/(\[Pi]T)"},PlotLabel->"k=0"]
+Print[SetPrecision[Solve[9/10 qPureExtremal==qPure[qt,1], qt][[1,1,2]],wp]];
+Print[SetPrecision[Solve[39/40 qPureExtremal==qPure[qt,1], qt][[1,1,2]],wp]];
+Print[SetPrecision[Solve[99/100 qPureExtremal==qPure[qt,1], qt][[1,1,2]],wp]];
+Print[SetPrecision[Solve[qPureExtremal==qPure[qt,1], qt][[1,1,2]],wp]];
 
 
-(* Do what we acutally want: Calculate w for differnt q at critical charge *)
+(* Calculate imaginary modes *)
 
-(* Set closer to critical temp, if desired *)
-(*SetPrecision[Solve[39/40 qPureExtremal\[Equal]qPure[qt,1], qt][[1,1,2]],wp];*)
-qtTemp=1/10;
+frequencies = {};
+(*qtTemp=SetPrecision[Solve[99/100 qPureExtremal==qPure[qt,1], qt][[1,1,2]],wp];*)
 
 (* Calculate values for the initial guess *)
- (*qnmRoutine[5,-5,0,qtTemp]*)
-listOfQNMk = {};
+(* Only purely imaginary mode*)
+qnmRoutine[0,-306/100, 0, 7/10]
 
-calc[kTemp] := (
-	Print["ss: ", ss];
-	kTemp = 2/40 * ss;
-	Print["kTemp: ", kTemp];
-	Print["Tt: ", Tt[qtTemp,1]];
-	Print["\[Mu]t: ", \[Mu]t[qtTemp,1]];
-	Print["uHT: ", uHt[qtTemp,1]];
+(* Replicate plot go from 0.7 to 1.0 *)
+For[step=0, step<=30, step++,
+	q = 7/10 + step/10;
+	Print["q: ", q];
 	
-	qnmRoutine[qnmVBC[[1,2]], qnmVBC[[2,2]], kTemp, qtTemp];
-	Print[" wr=", qnmVBC[[1,2]], " wi=", qnmVBC[[2,2]], ", qnmVBC", qnmVBC];
-	qnmVBC[[2,2]]/Sqrt[uHt[qtTemp,1]]
-	Return["A"];
-)
-calc[1]
-listOfQNMk = Table[calc[i], {i,0, 100, 10}];
+	qnmRoutine[qnmVBC[[1,2]],qnmVBC[[2,2]], 0, q];
+	frequencies = Append[frequencies, {q, -qnmVBC[[2,2]]}];
+]
+
+ListPlot[frequencies]
 
 
-listOfQNMk
-ListPlot[listOfQNMk,Frame->True,FrameLabel->{"Index", "Im \[Omega]/(\[Pi]T)"},PlotLabel->"q=critical"]
+
 
 
 
