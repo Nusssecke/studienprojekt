@@ -2,7 +2,7 @@
 
 julia_version = "1.10.3"
 manifest_format = "2.0"
-project_hash = "72787cb476955c06ce49b6f32e02fd4e8a6cec29"
+project_hash = "4fbf3e7dc64dd2d00e0ac2afd34eddc04ca861c2"
 
 [[deps.ADTypes]]
 git-tree-sha1 = "016833eb52ba2d6bea9fcb50ca295980e728ee24"
@@ -578,6 +578,11 @@ deps = ["LinearAlgebra", "Printf"]
 git-tree-sha1 = "af49a0851f8113fcfae2ef5027c6d49d0acec39b"
 uuid = "c145ed77-6b09-5dd9-b285-bf645a82121e"
 version = "0.5.4"
+
+[[deps.GeometricalPredicates]]
+git-tree-sha1 = "6c9f24b54b8bf2e3496b5b3c25f5a0aebacd95d5"
+uuid = "fd0ad045-b25c-564e-8f9c-8ef5c5f21267"
+version = "0.4.2"
 
 [[deps.Gettext_jll]]
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "JLLWrappers", "Libdl", "Libiconv_jll", "Pkg", "XML2_jll"]
@@ -1308,6 +1313,12 @@ git-tree-sha1 = "d483cd324ce5cf5d61b77930f0bbd6cb61927d21"
 uuid = "f50d1b31-88e8-58de-be2c-1cc44531875f"
 version = "0.4.2+0"
 
+[[deps.RootsAndPoles]]
+deps = ["LinearAlgebra", "VoronoiDelaunay"]
+git-tree-sha1 = "b5b0a8ef50e881309b918fd89ae78d1434e3d34b"
+uuid = "a0859a10-ccb4-11e8-145d-674b3750773a"
+version = "2.0.0"
+
 [[deps.RuntimeGeneratedFunctions]]
 deps = ["ExprTools", "SHA", "Serialization"]
 git-tree-sha1 = "04c968137612c4a5629fa531334bb81ad5680f00"
@@ -1688,6 +1699,12 @@ deps = ["Graphs"]
 git-tree-sha1 = "8351f8d73d7e880bfc042a8b6922684ebeafb35c"
 uuid = "19fa3120-7c27-5ec5-8db8-b0b0aa330d6f"
 version = "0.2.0"
+
+[[deps.VoronoiDelaunay]]
+deps = ["Colors", "GeometricalPredicates", "Random"]
+git-tree-sha1 = "622ff938ca2ccd56d00357dbecd8e67002dbaa40"
+uuid = "72f80fcb-8c52-57d9-aff0-40c1a3526986"
+version = "0.4.4"
 
 [[deps.Vulkan_Loader_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Wayland_jll", "Xorg_libX11_jll", "Xorg_libXrandr_jll", "xkbcommon_jll"]

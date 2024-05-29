@@ -3,30 +3,6 @@ using QNM, OrdinaryDiffEq, BoundaryValueDiffEq, Plots, DifferentialEquations
 #---------------------------------------------------------#
 # Plot QNM #
 
-function simple_shear_mode_eq!(du, u, p, t)
-    # u is current state variable, du is the derivative of u at time t, t is current time
-    c0, q, k, omega, _, _, _, _ = p # p is a vector of parameters
-    phiReal, phiImag, dphiReal, dphiImag = u
-
-    phi = phiReal + im * phiImag
-    dphi = dphiReal + im * dphiImag
-
-    du[1] = dphiReal
-    du[2] = dphiImag
-    eq = ddphi(t, phi, dphi, q, k, omega)
-    du[3] = real(eq)
-    du[4] = imag(eq)
-end
-
-# Boundary conditions
-function simple_boundary_condition!(residual, u, parameters, t)
-    _, _, _, _, phiHorizonReal, phiHorizonImag, dphiHorizonReal, dphiHorizonImag = parameters
-    residual[1] = phiHorizonReal - u[end][1] # solution at horizon should be the horizon expansion
-    residual[2] = phiHorizonImag - u[end][2] # solution at horizon should be the horizon expansion
-    residual[3] = dphiHorizonReal - u[end][3] # derivative at horizon should be the derivative of the horizon expansion
-    residual[4] = dphiHorizonImag - u[end][4] # derivative at horizon should be the derivative of the horizon expansion
-end
-
 function plotQNM(omega_real, omega_imag, q, k, plot_graph=false, dtmax=0.1)
     parameters = [1.0, q, k, omega_real + im * omega_imag] # Constants for the differential equation
     expansionValues = [

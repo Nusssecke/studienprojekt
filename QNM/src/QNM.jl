@@ -15,6 +15,32 @@ uHorizonNumerical = 1.0-1.0/10.0
 
 ddphi(t, phi, dphi, q, k, omega) = (-4*dphi*(-1 + t)*(-1 + t*(-1 + q^2*t))*(-1 + t^2*(-1 + q^2*(-1 + 2*t))) + phi*(-omega^2 + k^2*(-1 + t)*(-1 + t*(-1 + q^2*t))))/(4*(-1 + t)^2*t*(1 + t - q^2*t^2)^2)
 
+# Differential equation with static omega
+function simple_shear_mode_eq!(du, u, p, t)
+    # u is current state variable, du is the derivative of u at time t, t is current time
+    c0, q, k, omega, _, _, _, _ = p # p is a vector of parameters
+    phiReal, phiImag, dphiReal, dphiImag = u
+
+    phi = phiReal + im * phiImag
+    dphi = dphiReal + im * dphiImag
+
+    du[1] = dphiReal
+    du[2] = dphiImag
+    eq = ddphi(t, phi, dphi, q, k, omega)
+    du[3] = real(eq)
+    du[4] = imag(eq)
+end
+
+# Boundary conditions with static omega
+function simple_boundary_condition!(residual, u, parameters, t)
+    _, _, _, _, phiHorizonReal, phiHorizonImag, dphiHorizonReal, dphiHorizonImag = parameters
+    residual[1] = phiHorizonReal - u[end][1] # solution at horizon should be the horizon expansion
+    residual[2] = phiHorizonImag - u[end][2] # solution at horizon should be the horizon expansion
+    residual[3] = dphiHorizonReal - u[end][3] # derivative at horizon should be the derivative of the horizon expansion
+    residual[4] = dphiHorizonImag - u[end][4] # derivative at horizon should be the derivative of the horizon expansion
+end
+
+# Differential equation with varible omega
 function shear_mode_eq!(du, u, p, t)
     # u is current state variable, du is the derivative of u at time t, t is current time
     c0, q, k = p # p is a vector of parameters
@@ -36,7 +62,7 @@ function shear_mode_eq!(du, u, p, t)
     du[6] = 0
 end
 
-# Boundary conditions
+# Boundary conditions with variable omega
 function boundary_condition!(residual, u, p, t)
     c0, q, k = p
     vars = [c0, q, k, u[end][5] + im * u[end][6]]
