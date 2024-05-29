@@ -3,9 +3,9 @@
 
 (* This file aims to calculate the frequencies with minimal interaction *)
 
-wp = 5;(*Working precision.*)
-ag = 4;(*Accuracy goal.*)
-pg = 4;(*Precision goal*)
+wp = 25;(*Working precision.*)
+ag = 20;(*Accuracy goal.*)
+pg = 20;(*Precision goal*)
 
 (* Constrain black brane charge: *)
 $Assumptions = {qt < Sqrt[2], qt > 0};
@@ -52,7 +52,7 @@ Block[
 	]
 ]
 (* Usage: phiSol(w, k) *)
-phiSol[w_?NumericQ, kk_]:=Quiet[SetPrecision[solphi[w,kk,1][[1,1,2]],wp]]
+phiSol[w_?NumericQ, kk_]:=SetPrecision[solphi[w,kk,1][[1,1,2]],wp]
 
 (* Test *)
 Block[
@@ -73,6 +73,7 @@ qnmRoutine[initWR_,initWI_,kay_,kuh_]:=Block[
 	qnmVBC=SetPrecision[findQNMVBC[iWR,iWI], wp];
 	Print[{qnmVBC[[1,2]],qnmVBC[[2,2]]}]
 ]
+qnmRoutine[312/100,-275/100,0,0]
 
 
 (* Thermodynamics *)
@@ -82,7 +83,7 @@ uHt[qt_,m_]:=((1+qt^2)/m)^(1/2)
 
 (* Translating qt to q*)
 qPure[qt_,m_]:=qt (m/(1+qt^2))^(3/4)
-Plot[qPure[qt,1],{qt,0,Sqrt[2]},Frame->True,FrameLabel->{"\!\(\*OverscriptBox[\(q\), \(~\)]\)","q"}]
+Plot[qPure[qt,1],{qt,0,Sqrt[2]},Frame->True,FrameLabel->{"q_tilde","q"}]
 qPureExtremal=Sqrt[2] (m/3)^(3/4)/.{m->1}//N
 qPureExtremal=Rationalize[qPureExtremal, 0]
 
@@ -93,28 +94,28 @@ Print[SetPrecision[Solve[99/100 qPureExtremal==qPure[qt,1], qt][[1,1,2]],wp]];
 Print[SetPrecision[Solve[qPureExtremal==qPure[qt,1], qt][[1,1,2]],wp]];
 
 
-(* Calculate imaginary modes *)
+(* Do what we acutally want: Calculate w for differnt k with q at critical charge *)
 
-frequencies = {};
-(*qtTemp=SetPrecision[Solve[99/100 qPureExtremal==qPure[qt,1], qt][[1,1,2]],wp];*)
+(* Set closer to critical temp, if desired *)
+kkGlobal=0;
+qnmRoutine[2,-2,0,0]
 
-(* Calculate values for the initial guess *)
-(* Only purely imaginary mode*)
-qnmRoutine[0,-306/100, 0, 7/10]
-
-(* Replicate plot go from 0.7 to 1.0 *)
-For[step=0, step<=30, step++,
-	q = 7/10 + step/10;
-	Print["q: ", q];
-	
-	qnmRoutine[qnmVBC[[1,2]],qnmVBC[[2,2]], 0, q];
-	frequencies = Append[frequencies, {q, -qnmVBC[[2,2]]}];
+tabQNMTemp={};
+qtTemp=SetPrecision[Solve[0 qPureExtremal==qPure[qt,1],qt][[1,1,2]],wp]
+qtTemp // Print;
+ 
+For[ss=0,ss<201,ss++,
+	kkGlobal=ss/10;
+	Print["kkGlobal", kkGlobal];
+	qnmRoutine[qnmVBC[[1,2]],qnmVBC[[2,2]], qtTemp];
+	Print[" wr=", qnmVBC[[1,2]], " wi=", qnmVBC[[2,2]], ", qnmVBC", qnmVBC];
+	tabQNMTemp=Append[tabQNMTemp,{qnmVBC[[1,2]],qnmVBC[[2,2]]}/Sqrt[uHt[qtTemp,1]]];
 ]
-
-ListPlot[frequencies]
-
+Clear[qtTemp];
 
 
+tabQNMTemp
+ListPlot[tabQNMTemp,Frame->True,FrameLabel->{"Re\[Omega]","Im\[Omega]"},PlotLabel->"q=0"]
 
 
 
