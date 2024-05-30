@@ -1,6 +1,6 @@
 module QNM
 using OrdinaryDiffEq, BoundaryValueDiffEq, Plots, DifferentialEquations
-export uBoundaryNumerical, uHorizonNumerical, shear_mode_eq!, boundary_condition!, plotQNM, phiHorizonExpansion14, dphiHorizonExpansion14, phiHorizonExpansion, dphiHorizonExpansion, ddphi
+export uBoundaryNumerical, uHorizonNumerical, shear_mode_eq!, boundary_condition!, simple_shear_mode_eq!, simple_boundary_condition!, plotQNM, phiHorizonExpansion14, dphiHorizonExpansion14, phiHorizonExpansion, dphiHorizonExpansion, ddphi
 
 #---------------------------------------------------------#
 # Quasinormal modes #
@@ -18,7 +18,7 @@ ddphi(t, phi, dphi, q, k, omega) = (-4*dphi*(-1 + t)*(-1 + t*(-1 + q^2*t))*(-1 +
 # Differential equation with static omega
 function simple_shear_mode_eq!(du, u, p, t)
     # u is current state variable, du is the derivative of u at time t, t is current time
-    c0, q, k, omega, _, _, _, _ = p # p is a vector of parameters
+    c0, q, k, omega, _, _ = p # p is a vector of parameters
     phiReal, phiImag, dphiReal, dphiImag = u
 
     phi = phiReal + im * phiImag
@@ -33,11 +33,11 @@ end
 
 # Boundary conditions with static omega
 function simple_boundary_condition!(residual, u, parameters, t)
-    _, _, _, _, phiHorizonReal, phiHorizonImag, dphiHorizonReal, dphiHorizonImag = parameters
-    residual[1] = phiHorizonReal - u[end][1] # solution at horizon should be the horizon expansion
-    residual[2] = phiHorizonImag - u[end][2] # solution at horizon should be the horizon expansion
-    residual[3] = dphiHorizonReal - u[end][3] # derivative at horizon should be the derivative of the horizon expansion
-    residual[4] = dphiHorizonImag - u[end][4] # derivative at horizon should be the derivative of the horizon expansion
+    _, _, _, _, phiHorizon, dphiHorizon = parameters
+    residual[1] = real(phiHorizon) - u[end][1] # solution at horizon should be the horizon expansion
+    residual[2] = imag(phiHorizon) - u[end][2] # solution at horizon should be the horizon expansion
+    residual[3] = real(dphiHorizon) - u[end][3] # derivative at horizon should be the derivative of the horizon expansion
+    residual[4] = imag(dphiHorizon) - u[end][4] # derivative at horizon should be the derivative of the horizon expansion
 end
 
 # Differential equation with varible omega
