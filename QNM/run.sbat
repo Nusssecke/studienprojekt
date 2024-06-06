@@ -1,0 +1,9 @@
+#!/bin/bash
+#SBATCH --nodes 1
+#SBATCH --partition=hpc
+#SBATCH --mem=200G
+#SBATCH --job-name QNM
+#SBATCH --time=2-0
+
+export JULIA_NUM_THREADS=6
+julia --project=QNM QNM/src/rootsAndPoles.jl

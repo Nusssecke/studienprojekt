@@ -1,32 +1,13 @@
 using QNM, RootsAndPoles, OrdinaryDiffEq, BoundaryValueDiffEq, Plots, DifferentialEquations, BenchmarkTools, Base.Threads
 
+# Print number of threads
+println("Number of threads: ", Threads.nthreads())
+
 # ------------------------------------------------------------------
 # Numeric Reissner-Nordström Black Hole
 # ------------------------------------------------------------------
 
-function computeShearMode(q, k, omega, solver=Rodas5P(), dtmax=0.01)
-    println("Computing QNM with q = ", q, ", k = ", k, ", omega = ", omega)
-    parameters = [1.0, q, k, omega] # Constants for the differential equation
-    
-    # Pre calculate the values for the boundary conditions
-    horizonExpansionValues = [phiHorizonExpansion(uHorizonNumerical, parameters...), dphiHorizonExpansion(uHorizonNumerical, parameters...)]
-    # horizonExpansionValues = [phiHorizonExpansion14(uHorizonNumerical, parameters...), dphiHorizonExpansion14(uHorizonNumerical, parameters...)]
-    parameters = vcat(parameters, horizonExpansionValues)
-    println("Finished horizonExpansionValues: ", horizonExpansionValues)
-
-    # I am still not sure what the real boundary conditions are
-    u0 = [0, 0, 0, 0]; # initial conditions
-    # u0 = [real(phiHorizonExpansion(uHorizonNumerical, parameters...)), imag(phiHorizonExpansion(uHorizonNumerical, parameters...)), real(dphiHorizonExpansion(uHorizonNumerical, parameters...)), imag(dphiHorizonExpansion(uHorizonNumerical, parameters...))]; # initial conditions
-	tspan = (QNM.uBoundaryNumerical, QNM.uHorizonNumerical) # Possible values for u
-
-    boundary_value_problem = BVProblem(simple_shear_mode_eq!, simple_boundary_condition!, u0, tspan, parameters)
-
-    solution = solve(boundary_value_problem, Shooting(solver), dt=dtmax/10, dtmax=dtmax)
-    # display(plot(solution))
-
-    # We are checking for roots at the boundary (so the first element of the solution)
-    return solution[1][1] + im * solution[1][2]
-end
+# Definition for compute shear mode
 
 q, k, omega = [0.0, 1/2, 1/2]
 omega = computeShearMode(q, k, omega, Rodas5P(), 0.001)
@@ -46,10 +27,10 @@ end
 # Search domain and mesh construction
 # ------------------------------------------------------------------
 const xb = 3.0 # real part begin
-const xe = 4.0   # real part end
-const yb = -3.0 # imag part begin
-const ye = -2.0 # imag part end
-const r = 1.0e-1 # initial mesh step
+const xe = 3.2   # real part end
+const yb = -2.8 # imag part begin
+const ye = -2.6 # imag part end
+const r = 1.0e-2 # initial mesh step
 const origcoords = rectangulardomain(Complex(xb, yb), Complex(xe, ye), r)
 
 # ------------------------------------------------------------------

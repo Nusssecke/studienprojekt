@@ -20,15 +20,16 @@ Print[myphiEqRS/.{u->t,w->omega}]
 order=14;
 phiH[u_]:=(1-u)^((I w)/(2 (-2+qt^2))) Sum[cphiH[nn] (1-u)^nn,{nn,0,order}] /. {\[Alpha]->(I w)/(2 (-2+qt^2))}
 (* !!! Change !!!*)
-ruleH=Get["/home/finn/Dokumente/studienprojekt/paper_notebooks/ruleHk14"]; 
+ruleH=Get["/home/finn/Documents/studienprojekt/paper_notebooks/ruleHk14"]; 
 phiHExpansion[u_,c0_]:=SetPrecision[phiH[u]/.ruleH/.{cphiH[0]->c0,cphiH[order]->0}, 25] /. {q->qt}
 
 
 (* hiH[u]/.ruleH/.{cphiH[0]->c0,cphiH[order]->0}/.{q->qt} *)
 (* D[phiH[u]/.ruleH/.{cphiH[0]->c0,cphiH[order]->0}/.{q->qt},u] *)
 
-phiHExpansion[1/2,1]/.{qt->1/10,w->1/10,kk->0}
-SetPrecision[D[phiH[u]/.ruleH/.{cphiH[0]->c0,cphiH[order]->0}/.{q->qt},u], 25]/.{u->1/2,c0->1,qt->1/10,w->1/10,kk->0}
+phiHExpansion[1/2,1]/.{qt->1/10,w->(1/10),kk->0}
+phiHExpansion[1/1000000000,1]/.{qt->1/10,w->(1/10+1/10I),kk->1/10}
+SetPrecision[D[phiH[u]/.ruleH/.{cphiH[0]->c0, cphiH[order]->0} /.{q->qt},u], 25]/.{u->1/1000000000, c0->1.0, qt->1/10,w->(1/10+1/10I),kk->1/10}
 Precision[phiHExpansion[1/2,1]/.{qt->1/10,w->1/10,kk->0}]
 
 
@@ -60,10 +61,8 @@ phiSol[w_?NumericQ, kk_]:=Quiet[SetPrecision[solphi[w,kk,1][[1,1,2]],wp]]
 (*[[1,1,2]]*)
 (* Test *)
 Block[{qt = 0},
-	sol = phiSol[1/2, 1/2];
-	sol // Print;
+	sol = phiSol[3.1194516 -2.7466757I, 0];
 	sol /. u->(uBnum) // Print;
-	sol /. u->(1/2) // Print;
 	ReImPlot[phi[u] /.{phi[u] -> sol}, {u, uBnum, uHnum}]]
 
 
