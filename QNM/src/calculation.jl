@@ -37,8 +37,8 @@ function computeQNM(omega_real, omega_imag, qt, kk, solver, dtmax=0.01, plot=fal
     println("omega = ", solution.u[1][5] + solution.u[1][6] * im)
     return solution.u[1][5] + solution.u[1][6] * im
 end
-
-plotQNM(3.0, -3.0, sqrt(2)*0/((3)^(3/4)), 0.0)
+computeQNM(3.0, -3.0, sqrt(2)*0.1/((3)^(3/4)), 0.0, Rodas5P(), 0.00001)
+# plotQNM(3.0, -3.0, sqrt(2)*0/((3)^(3/4)), 0.0)
 
 # Compute for all q
 # for q in [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
