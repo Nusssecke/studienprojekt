@@ -24,7 +24,7 @@ function computeShearMode(q, k, omega, solver=Rodas5P(), dtmax=0.01)
     solution = solve(boundary_value_problem, Shooting(solver), dt=dtmax/10, dtmax=dtmax)
     # display(plot(solution, idxs=[1, 2], title="QNM"))
 
-    println("Computing QNM with q = ", q, ", k = ", k, ", omega = ", omega, " -> ", solution.u[1][1] + solution.u[1][1] * im)
+    println("Computing QNM with q = ", q, ", k = ", k, ", omega = ", omega, " -> ", solution.u[1][1] + solution.u[1][2] * im)
     # We are checking for roots at the boundary (so the first element of the solution)
     return solution[1][1] + im * solution[1][2]
 end
@@ -47,7 +47,7 @@ ddphi(t, phi, dphi, q, k, omega) = (-4*dphi*(-1 + t)*(-1 + t*(-1 + q^2*t))*(-1 +
 # Differential equation with static omega
 function simple_shear_mode_eq!(du, u, p, t)
     # u is current state variable, du is the derivative of u at time t, t is current time
-    c0, q, k, omega, _, _ = p # p is a vector of parameters
+    c0, q, k, o mega, _, _ = p # p is a vector of parameters
     phiReal, phiImag, dphiReal, dphiImag = u
 
     phi = phiReal + im * phiImag
