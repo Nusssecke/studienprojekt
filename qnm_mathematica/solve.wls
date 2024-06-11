@@ -60,8 +60,8 @@ Block[
 phiSol[w_?NumericQ, kk_]:=Quiet[SetPrecision[solphi[w,kk,1][[1,1,2]],wp]]
 (*[[1,1,2]]*)
 (* Test *)
-Block[{qt = 0},
-	sol = phiSol[3.1194516 -2.7466757I, 0];
+Block[{qt = 1.19225},
+	sol = phiSol[0 -3.5 I, 0];
 	sol /. u->(uBnum) // Print;
 	ReImPlot[phi[u] /.{phi[u] -> sol}, {u, uBnum, uHnum}]]
 

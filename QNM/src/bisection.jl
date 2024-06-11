@@ -1,17 +1,7 @@
-using QNM
-
-function real_wrapper(omega)
-    q, k, omega = [1.19225, 0.5, 0.0 + omega * im]
-    return real(computeShearMode(q, k, omega))
-end
-
-function imag_wrapper(omega)
-    q, k, omega = [1.19225, 0.5, 0.0 + omega * im]
-    return imag(computeShearMode(q, k, omega))
-end
+using QNM, Plots, Base.Threads, OrdinaryDiffEq, BoundaryValueDiffEq, DifferentialEquations
 
 # Find QNM modes
-function findQNMBisection(func_real::Function, func_imag::Function, a::Number, b::Number, tol::AbstractFloat=1e-5, maxiter::Integer=100)
+function findQNMBisection(func_real::Function, func_imag::Function, a::Number, b::Number, numSamples::Integer=10, tol::AbstractFloat=1e-5, maxiter::Integer=100)
     # Compute the function value on both boundaries
     f_a, f_b = [func_real(a), func_real(b)]
 
@@ -20,11 +10,15 @@ function findQNMBisection(func_real::Function, func_imag::Function, a::Number, b
         # There is a sign flip, do bisection on normal interval
         return bisection(func_real, a, b, tol=tol, maxiter=maxiter)
     else
-        println("Possibly more than one root in interval!")
+        println("Sampling $numSamples points in the interval [$a, $b]")
         # Sample the function on the interval to find possible roots
-        numSamples = 2
         step = (b-a) / numSamples
-        samples = [func_real(x) for x in (a+step):step:(b-step)]
+
+        # samples = [func_real(x) for x in (a+step):step:(b-step)]
+        samples = Vector{Float64}(undef, numSamples-1)
+        Threads.@threads for x in 1:numSamples-1
+            samples[x] = func_real(a + step*x)
+        end
 
         pushfirst!(push!(samples, f_b), f_a) # Add start and end to the array
         println("Sampling; #: $(numSamples-1), step: $step, samples: $samples")
@@ -35,6 +29,7 @@ function findQNMBisection(func_real::Function, func_imag::Function, a::Number, b
         # Iterate through the list and check for sign changes
         for i in 1:length(samples)-1
             if samples[i] * samples[i+1] < 0
+                println("Samples have different sign: $(a+step*(i-1)) and $(a+step*(i)); $(samples[i]) and $(samples[i+1])")
                 root = bisection(func_real, a + step*(i-1), a + step*i, tol=tol, maxiter=maxiter)
                 push!(roots, root)
             end
@@ -42,12 +37,11 @@ function findQNMBisection(func_real::Function, func_imag::Function, a::Number, b
         println("Found roots: $roots")
         println("Checking against imaginary part")
 
-        qnm = []
+        qnm = AbstractFloat[]
         # Check if found roots are also roots for the imaginary part
         epsilon = 0.001
         for root in roots
             imag_root = bisection(func_imag, root - epsilon, root + epsilon, tol=tol, maxiter=maxiter)
-            println("Imag root $imag_root")
             if !isempty(imag_root)
                 push!(qnm, root)
             end
@@ -56,11 +50,14 @@ function findQNMBisection(func_real::Function, func_imag::Function, a::Number, b
     end
 end
 
+# https://mmas.github.io/bisection-method-julia
 # Serarch for roots in the real part and check in the imaginary part if true root
 function bisection(f::Function, a::Number, b::Number; tol::AbstractFloat=1e-5, maxiter::Integer=100)
     f_a, f_b = [f(a), f(b)]
-    f_a * f_b <= 0 || error("No real root in [a, b]") # Error because we checked before
-    
+    if f_a * f_b >= 0
+        println("Before error $(f_a * f_b <= 0)")
+        error("No root in [a, b], [$a, $b], [$f_a, $f_b]; Product [$(f_a*f_b)]") # Error because we checked before
+    end
     iterations = 0
     local c
     while (b-a) > tol
@@ -82,13 +79,35 @@ function bisection(f::Function, a::Number, b::Number; tol::AbstractFloat=1e-5, m
     return c
 end
 
-# There is a root inbetween -0.7...-0.65
-qnm = findQNMBisection(real_wrapper, imag_wrapper, -5.0, -0.5)
-println(qnm)
+# ------------------------------------------------------------------
+# Calculation
+# println("Number of threads: $(Threads.nthreads())")
 
+q = 1.19225
+samples = 100
 
-# function aFunction(x::Float64)
-    # return x^4-x^2
+# Calculate spectrum
+# found_qnm = Dict()
+# Threads.@threads for k in 0:0.1:1.0
+#     println("Computing QNM for k = $k:")
+#     omega = findQNMBisection(omega->real(computeShearMode(q,k,omega*im,Rodas5P(),0.001)), omega->imag(computeShearMode(q,k,omega*im,Rodas5P(),0.001)), -5.0, 0.0, samples)
+#     println("Found QNM: $omega")
+#     found_qnm[k] = omega
 # end
-# roots = findQNMBisection(aFunction, aFunction, 4.0, 7.0)
+# println(found_qnm)
+# QNM.save_results("99", q, found_qnm)
+
+k = 0.005
+# findQNMBisection(omega->real(computeShearMode(q,k,omega*im,Rodas5P(),0.0001)), omega->imag(computeShearMode(q,k,omega*im,Rodas5P(),0.0001)), -4.3, -4.2, samples)
+
+q = sqrt(2)
+k = 0.05
+findQNMBisection(omega->real(computeShearMode(q,k,omega*im,Rodas5P(),0.01,true)), omega->imag(computeShearMode(q,k,omega*im,Rodas5P(),0.01,true)), -4.3, -4.2, samples)
+
+# ------------------------------------------------------------------
+# Test functions
+# function aFunction(x::Float64)
+#     return x^2
+# end
+# roots = findQNMBisection(aFunction, aFunction, 1.0, 2.0, 40)
 # println(roots)

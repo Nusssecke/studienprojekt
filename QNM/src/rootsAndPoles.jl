@@ -21,17 +21,17 @@ println("Test Root:", omega, "; Trying to match: ", 0.986296694628728507856650+0
 # ------------------------------------------------------------------
 
 function δ_wrapper(omega)
-    q, k, omega = [0.336133, 0.0, omega]
-    computeShearMode(q, k, omega)
+    q, k, omega = [2, 0.05, omega]
+    computeShearMode(q, k, omega, Rodas5P(), 0.00001, true)
 end
 
 # ------------------------------------------------------------------
 # Search domain and mesh construction
 # ------------------------------------------------------------------
-const xb = 3.0 # real part begin
-const xe = 3.1   # real part end
-const yb = -3.0 # imag part begin
-const ye = -2.9 # imag part end
+const xb = 0.0 # real part begin
+const xe = 5.0   # real part end
+const yb = -5.0 # imag part begin
+const ye = 0.0 # imag part end
 const r = 1.0e-2 # initial mesh step
 const origcoords = rectangulardomain(Complex(xb, yb), Complex(xe, ye), r)
 
@@ -69,40 +69,6 @@ println("Poles:")
 for pole in poles
     println(pole)
 end
-
-#--------------------------------------------------------------
-# Extract roots and flatten omega_values
-# flat_omega_values = vcat([roots for roots in omega_values]...)
-# 
-# # Create corresponding k_values
-# flat_k_values = vcat([fill(k, length(roots)) for (k, roots) in zip(k_values, omega_values)]...)
-# 
-# # Convert the eigenvalues and k values to a DataFrame
-# df = DataFrame(K_values = flat_k_values, Eigenvalues = flat_omega_values)
-# 
-# # Write the DataFrame to a CSV file
-# CSV.write("99q_k001.csv", df)
-# 
-# #--------------------------------------------------------------
-# # Fitting values
-# df = CSV.read("99q_k001.csv", DataFrame)
-# 
-# # Extract the k and eigenvalues values
-# flat_k_values = df.K_values
-# 
-# # Convert the eigenvalues to complex numbers
-# flat_omega_values = parse.(Complex{Float64}, df.Eigenvalues)
-# 
-# ext_model(x,p)= p[1] .*x.^ p[2] .+ p[3]
-# # Fit the imaginary part of the eigenmodes to a curve
-# result_imag_ext = curve_fit(ext_model, flat_k_values, imag.(flat_omega_values), [1.0,1.0, -3.5])
-# println("Fitted parameters for the imaginary part: ", result_imag_ext.param)
-# plot(flat_k_values, ext_model(flat_k_values, result_imag_ext.param), label="extended fit for Im(ω)", legend=:outertopleft)
-# plot!(flat_k_values ,imag.(flat_omega_values), seriestype = :scatter, xlabel="k", ylabel="Im(ω)",label= "(Im(ω(k)))" ,title="Dispersion \$ω(k) q=0.99q_{extr}\$ ", legend=:outertopleft)#q\$_{extr}\$
-# println(flat_k_values)
-# println(imag.(flat_omega_values))
-#--------------------------------------------------------------
-
 
 #plot the δ_wrapper function
 # Define the range of real and imaginary parts
