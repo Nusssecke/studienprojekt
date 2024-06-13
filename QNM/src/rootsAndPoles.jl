@@ -1,5 +1,7 @@
 using QNM, RootsAndPoles, OrdinaryDiffEq, BoundaryValueDiffEq, Plots, DifferentialEquations, BenchmarkTools, Base.Threads
 
+using CSV, DataFrames
+
 # Print number of threads
 println("Number of threads: ", Threads.nthreads())
 
@@ -19,17 +21,17 @@ println("Test Root:", omega, "; Trying to match: ", 0.986296694628728507856650+0
 # ------------------------------------------------------------------
 
 function δ_wrapper(omega)
-    q, k, omega = [0.0, 0.0, omega]
-    computeShearMode(q, k, omega)
+    q, k, omega = [2, 0.05, omega]
+    computeShearMode(q, k, omega, Rodas5P(), 0.00001, true)
 end
 
 # ------------------------------------------------------------------
 # Search domain and mesh construction
 # ------------------------------------------------------------------
-const xb = 3.0 # real part begin
-const xe = 3.2   # real part end
-const yb = -2.8 # imag part begin
-const ye = -2.6 # imag part end
+const xb = 0.0 # real part begin
+const xe = 5.0   # real part end
+const yb = -5.0 # imag part begin
+const ye = 0.0 # imag part end
 const r = 1.0e-2 # initial mesh step
 const origcoords = rectangulardomain(Complex(xb, yb), Complex(xe, ye), r)
 
@@ -43,7 +45,7 @@ params = GRPFParams(
     5000000,   # the maximum number of Delaunay tessalation nodes before `grpf` returns.
     5,       # maximum ratio of the longest to shortest side length of Delaunay triangles before they are split during `grpf` refinement iterations.
     5000,    # provide a size hint to the total number of expected nodes in the Delaunay tesselation. Setting this number approximately correct can improve performance
-    1.0e-9, # maximum allowed edge length of the tesselation defined in the `origcoords` domain before returning
+    1.0e-4, # maximum allowed edge length of the tesselation defined in the `origcoords` domain before returning
     true    # use `Threads.@threads` to run the user-provided function `fcn` across the `DelaunayTriangulation`
 )
 
@@ -51,9 +53,10 @@ params = GRPFParams(
 # 5. Root finding and printing
 # ------------------------------------------------------------------
 
-benchmark_result = @benchmark grpf($δ_wrapper, $origcoords, $params)
-
 roots, poles = grpf(δ_wrapper, origcoords, params)
+
+omega_values = []
+push!(omega_values, roots)
 
 println("Roots:")
 for root in roots
@@ -66,10 +69,6 @@ println("Poles:")
 for pole in poles
     println(pole)
 end
-
-println("-------------------------------------------")
-println("Benchmark result:")
-println(benchmark_result)
 
 #plot the δ_wrapper function
 # Define the range of real and imaginary parts
